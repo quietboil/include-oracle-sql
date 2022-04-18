@@ -11,8 +11,8 @@ repository = "https://github.com/quietboil/include-oracle-sql"
 homepage = "https://quietboil.github.io/include-oracle-sql" 
 
 [dependencies]
-include-sql = { version = "0.2", path = "../include-sql" }
-include-oracle-sql-args = { version = "0.1", path = "../include-oracle-sql-args" }
+include-sql = "0.2"
+include-oracle-sql-args = "0.1"
 
 [dev-dependencies]
 sibyl = { version = "0.6", features = ["blocking"] }
