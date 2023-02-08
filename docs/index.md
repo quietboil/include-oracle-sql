@@ -34,7 +34,7 @@ UPDATE library
 
 And then use it in Rust as:
 
-```rust , ignore
+```rust
 use include_oracle_sql::{include_sql, impl_sql};
 use sibyl as oracle;
 
@@ -86,7 +86,7 @@ SELECT book_title FROM library WHERE loaned_to = :user_id;
 
 The method with the following signature is generated:
 
-```rust , ignore
+```rust
 fn get_loaned_books<F>(&self, user_id: &str, row_callback: F) -> sibyl::Result<()>
 where F: FnMut(sibyl::Row<'_>) -> sibyl::Result<()>;
 ```
@@ -111,7 +111,7 @@ UPDATE library
 
 The method with the following signature is generated:
 
-```rust , ignore
+```rust
 fn loan_books(&self, user_id: &str, book_ids: &[usize]) -> sibyl::Result<usize>;
 ```
 
@@ -135,7 +135,7 @@ RETURN book_id INTO :book_id;
 
 The method with the following signature is generated:
 
-```rust , ignore
+```rust
 fn add_new_book(&self, isbn: &str, book_title: &str, book_id: &mut usize) -> sibyl::Result<usize>;
 ```
 
@@ -153,7 +153,7 @@ SELECT book_title
 
 The generated method will have the following signature:
 
-```rust , ignore
+```rust
 fn prepare_loaned_books_query(&self) -> sibyl::Result<sibyl::Statement>;
 ```
 
@@ -174,7 +174,7 @@ SELECT book_title
 
 Then the signature of the generated method would be:
 
-```rust , ignore
+```rust
 /// Returns the list of books loaned to a patron
 fn get_loaned_books<F>(&self, user_id: impl sibyl::ToSql, row_callback: F) -> sibyl::Result<()>
 where F: Fn(sibyl::Row<'_>) -> sibyl::Result<()>;
