@@ -18,7 +18,7 @@ macro_rules! decl_method {
     ( ? $name:ident $doc:literal ($($gen_type:ident)*) ($($fn_params:tt)*) ) => {
         #[doc=$doc]
         fn $name<$($gen_type : sibyl::ToSql ,)* F>(&self $($fn_params)* , row_cb: F) -> sibyl::Result<()>
-        where F: Fn(sibyl::Row<'_>) -> sibyl::Result<()>;
+        where F: FnMut(sibyl::Row<'_>) -> sibyl::Result<()>;
     };
     ( ! $name:ident $doc:literal ($($gen_type:ident)*) ($($fn_params:tt)*) ) => {
         #[doc=$doc]
@@ -70,8 +70,8 @@ macro_rules! decl_method {
 #[doc(hidden)]
 macro_rules! impl_method {
     ( ? $name:ident () () () => () $text:literal ) => {
-        fn $name<F>(&self, row_cb: F) -> sibyl::Result<()>
-        where F: Fn(sibyl::Row<'_>) -> sibyl::Result<()>
+        fn $name<F>(&self, mut row_cb: F) -> sibyl::Result<()>
+        where F: FnMut(sibyl::Row<'_>) -> sibyl::Result<()>
         {
             let stmt = self.prepare($text)?;
             let rows = stmt.query(())?;
@@ -82,8 +82,8 @@ macro_rules! impl_method {
         }
     };
     ( ? $name:ident () ($($fn_params:tt)+) () => ($(: $arg:ident)+) $($text:tt)+) => {
-        fn $name<F>(&self $($fn_params)+ , row_cb: F) -> sibyl::Result<()>
-        where F: Fn(sibyl::Row<'_>) -> sibyl::Result<()>
+        fn $name<F>(&self $($fn_params)+ , mut row_cb: F) -> sibyl::Result<()>
+        where F: FnMut(sibyl::Row<'_>) -> sibyl::Result<()>
         {
             let stmt = self.prepare( $crate::sql_literal!( $($arg)+ => $($text)+ ) )?;
             let rows = stmt.query( include_oracle_sql_args::map!( $($arg)+ => $($text)+ ) )?;
@@ -94,8 +94,8 @@ macro_rules! impl_method {
         }
     };
     ( ? $name:ident ($($gen_type:ident)*) ($($fn_params:tt)+) () => ($($pv:tt $arg:ident)+) $($text:tt)+) => {
-        fn $name<$($gen_type : sibyl::ToSql ,)* F>(&self $($fn_params)+, row_cb: F) -> sibyl::Result<()>
-        where F: Fn(sibyl::Row<'_>) -> sibyl::Result<()>
+        fn $name<$($gen_type : sibyl::ToSql ,)* F>(&self $($fn_params)+, mut row_cb: F) -> sibyl::Result<()>
+        where F: FnMut(sibyl::Row<'_>) -> sibyl::Result<()>
         {
             let mut stmt = String::with_capacity( $crate::sql_len!($($text)+) );
             let mut i = 0;
