@@ -186,4 +186,4 @@ where F: FnMut(sibyl::Row<'_>) -> sibyl::Result<()>;
 [2]: https://crates.io/crates/sibyl
 [3]: https://doc.rust-lang.org/proc_macro/struct.SourceFile.html
 [4]: https://quietboil.github.io/include-sql
-[5]: /examples/prepare_query.rs
+[5]: https://github.com/quietboil/include-oracle-sql/blob/master/examples/prepare_query.rs
