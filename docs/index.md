@@ -9,7 +9,7 @@ Add `include-oracle-sql` as a dependency:
 include-oracle-sql = "0.1"
 ```
 
-Write your SQL and save it in a file. For example, let's say the following is the content of the `library.sql` file that is saved in the project's `src` folder:
+Write your SQL and save it in a file. For example, let's say the following is the content of the `library.sql` file that is saved in the project's `sql` folder:
 
 ```sql
 -- name: get_loaned_books?
@@ -21,7 +21,7 @@ SELECT book_title
  WHERE loaned_to = :user_id
  ORDER BY 1;
 
--- name: loan_books
+-- name: loan_books!
 -- Updates book records to reflect loan to a patron
 -- # Parameters
 -- param: user_id: &str - user ID
@@ -38,7 +38,7 @@ And then use it in Rust as:
 use include_oracle_sql::{include_sql, impl_sql};
 use sibyl as oracle;
 
-include_sql!("src/library.sql");
+include_sql!("sql/library.sql");
 
 fn main() -> oracle::Result<()> {
     let db_name = std::env::var("DBNAME").expect("database name");
@@ -51,7 +51,7 @@ fn main() -> oracle::Result<()> {
 
     session.get_loaned_books(user_id, |row| {
         let book_title : &str = row.get("BOOK_TITLE")?;
-        println!("{}", book_title);
+        println!("{book_title}");
         Ok(())
     })?;
 
@@ -59,7 +59,7 @@ fn main() -> oracle::Result<()> {
 }
 ```
 
-> **Note** that the path to the SQL file must be specified relative to the project root, i.e. relative to `CARGO_MANIFEST_DIR`, even if you keep your SQL file alongside rust module that includes it. Because include-sql targets stable Rust this requirement will persist until [SourceFile][3] stabilizes.
+> **Note** that the path to the SQL file must be specified relative to the project root, i.e. relative to `CARGO_MANIFEST_DIR`. Because include-sql targets stable Rust this requirement will persist until [SourceFile][3] stabilizes.
 
 # Anatomy of the Included SQL File
 
@@ -67,9 +67,12 @@ Please see the **Anatomy of the Included SQL File** in [include-sql][4] document
 
 # Generated Methods
 
-**include-oracle-sql** generates 2 variants of database access methods using the following selectors:
+**include-oracle-sql** generates 3 variants of database access methods using the following selectors:
 * `?` - methods that process rows retrieved by `SELECT`,
 * `!` - methods that execute all other non-`SELECT` methods.
+* `.` - methods that only prepare and return prepared statements.
+
+> **Note** that `.` methods are nothing more than helpers that wrap `sibyl::Statement::prepare()`. While they do very little, they allow one to handle scenarios which might be difficult to process otherwise and still keep the SQL code in a separate file.
 
 ## Process Selected Rows
 
@@ -85,7 +88,7 @@ The method with the following signature is generated:
 
 ```rust , ignore
 fn get_loaned_books<F>(&self, user_id: &str, row_callback: F) -> sibyl::Result<()>
-where F: Fn(sibyl::Row<'_>) -> sibyl::Result<()>;
+where F: FnMut(sibyl::Row<'_>) -> sibyl::Result<()>;
 ```
 
 Where:
@@ -97,7 +100,7 @@ Where:
 For non-select statements - INSERT, UPDATE, DELETE, etc. - like the following:
 
 ```sql
--- name: loan_books
+-- name: loan_books!
 -- param: user_id: &str
 -- param: book_ids: usize
 UPDATE library
@@ -121,7 +124,7 @@ Where:
 For DELETE, INSERT, and UPDATE statements that return data via `RETURNING` clause like:
 
 ```sql
--- name: add_new_book
+-- name: add_new_book!
 -- param: isbn: &str
 -- param: book_title: &str
 -- param: book_id: &mut usize
@@ -135,6 +138,26 @@ The method with the following signature is generated:
 ```rust , ignore
 fn add_new_book(&self, isbn: &str, book_title: &str, book_id: &mut usize) -> sibyl::Result<usize>;
 ```
+
+## Prepared Statements
+
+When a statement name in the SQL file is tagged with `.` **include-oracle-sql** will generate a method that only prepares a statement and returns it:
+
+```sql
+-- name: prepare_loaned_books_query.
+SELECT book_title
+  FROM library
+ WHERE loaned_to = :user_id
+ ORDER BY 1;
+```
+
+The generated method will have the following signature:
+
+```rust , ignore
+fn prepare_loaned_books_query(&self) -> sibyl::Result<sibyl::Statement>;
+```
+
+> **Note** that in this case the SQL parameters are ignored and it becomes a user's responsibility to pass them properly to the `sibyl::Statement::execute()` or `sibyl::Statement::query()` calls. [prepare_query.rs][5] provides a simple example.
 
 # Inferred Parameter Types
 
@@ -163,3 +186,4 @@ where F: Fn(sibyl::Row<'_>) -> sibyl::Result<()>;
 [2]: https://crates.io/crates/sibyl
 [3]: https://doc.rust-lang.org/proc_macro/struct.SourceFile.html
 [4]: https://quietboil.github.io/include-sql
+[5]: /examples/prepare_query.rs

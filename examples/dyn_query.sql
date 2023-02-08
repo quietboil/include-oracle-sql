@@ -2,7 +2,7 @@
 -- # Parameters
 -- param: from_date : &sibyl::Date - First date of the hire range
 -- param: thru_date : &sibyl::Date - Last date of the hire range
--- param: country_ids : &str - Lits of country codes
+-- param: country_ids : &str - List of country codes
 --
 SELECT c.country_name, Median(e.salary)
   FROM hr.employees e
