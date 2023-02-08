@@ -1,3 +1,7 @@
+[![crates.io](https://img.shields.io/crates/v/include-oracle-sql)](https://crates.io/crates/include-oracle-sql)
+[![Documentation](https://docs.rs/include-oracle-sql/badge.svg)](https://docs.rs/include-oracle-sql)
+![MIT](https://img.shields.io/crates/l/include-oracle-sql.svg)
+
 **include-oracle-sql** is an extension of [include-sql][1] for using Oracle SQL in Rust. It completes include-sql by providing `impl_sql` macro to generate database access methods from the included SQL. include-oracle-sql uses [Sibyl][2] for database access.
 
 # Example
@@ -14,7 +18,7 @@ SELECT book_title
  WHERE loaned_to = :user_id
  ORDER BY 1;
 
--- name: loan_books
+-- name: loan_books!
 -- Updates book records to reflect loan to a patron
 -- # Parameters
 -- param: user_id: &str - user ID
