@@ -177,7 +177,7 @@ Then the signature of the generated method would be:
 ```rust
 /// Returns the list of books loaned to a patron
 fn get_loaned_books<F>(&self, user_id: impl sibyl::ToSql, row_callback: F) -> sibyl::Result<()>
-where F: Fn(sibyl::Row<'_>) -> sibyl::Result<()>;
+where F: FnMut(sibyl::Row<'_>) -> sibyl::Result<()>;
 ```
 
 > **Note** that include-sql is not able to infer whether a parameter needs to to be `mut` without a `param:` type annotation. Therefore an output parameter used as a RETURNING, OUT, or INOUT parameter must be annotated via `param:`
