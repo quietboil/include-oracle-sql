@@ -10,3 +10,7 @@ SELECT c.country_name, Median(e.salary)
  WHERE r.region_name = :REGION_NAME
  GROUP BY c.country_name
  ORDER BY 2 DESC, 1
+
+-- name: prepare_get_number_of_departments_query.
+-- Prepares a statement that counts the number of departments.
+SELECT Count(*) FROM hr.departments

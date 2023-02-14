@@ -1,6 +1,6 @@
 [package]
 name = "include-oracle-sql"
-description = "A Yesql inspired macro for using Oracle SQL in Rust" 
+description = "A Yesql inspired macro for using Oracle SQL in Rust"
 version = "0.2.0"
 authors = ["Alex Demenchuk <alexander.demenchuk@gmail.com>"]
 edition = "2018"
@@ -8,14 +8,19 @@ license = "MIT"
 keywords = ["database","sql","macro","oracle"]
 categories = ["database"]
 repository = "https://github.com/quietboil/include-oracle-sql"
-homepage = "https://quietboil.github.io/include-oracle-sql" 
+homepage = "https://quietboil.github.io/include-oracle-sql"
 
 [dependencies]
 include-sql = "0.3"
 include-oracle-sql-args = "0.1"
+sibyl = { version = "0.6", optional = true }
 
 [dev-dependencies]
-sibyl = { version = "0.6", features = ["blocking"] }
+tokio = { version = "1", features = ["full"] }
+
+[features]
+default = ["sibyl/blocking"]
+tokio = ["include-sql/async", "sibyl/nonblocking", "sibyl/tokio"]
 
 [package.metadata.docs.rs]
 rustdoc-args = ["--cfg", "docsrs"]
