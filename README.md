@@ -6,27 +6,35 @@
 
 # Example
 
-Write your SQL and save it in a file. For example, let's say the following is saved as `library.sql` in the project's `src` folder:
+Write your SQL and save it in a file. For example, let's say the following is saved as `library.sql` in the project's `sql` folder:
 
 ```sql
--- name: get_loaned_books?
+-- name: get_loaned_books ?
+--
 -- Returns the list of books loaned to a patron
+--
 -- # Parameters
+--
 -- param: user_id: &str - user ID
+--
 SELECT book_title
   FROM library
  WHERE loaned_to = :user_id
- ORDER BY 1;
+ ORDER BY 1
 
 -- name: loan_books!
--- Updates book records to reflect loan to a patron
+--
+-- Updates the book records to reflect loan to a patron
+--
 -- # Parameters
+--
+-- param: book_titles: &str - book titles
 -- param: user_id: &str - user ID
--- param: book_ids: usize - book IDs
+--
 UPDATE library
    SET loaned_to = :user_id
      , loaned_on = current_timestamp
- WHERE book_id IN (:book_ids);
+ WHERE book_title IN (:book_titles)
 ```
 
 And then use it in Rust as:
@@ -35,18 +43,19 @@ And then use it in Rust as:
 use include_oracle_sql::{include_sql, impl_sql};
 use sibyl as oracle;
 
-include_sql!("src/library.sql");
+include_sql!("sql/library.sql");
 
 fn main() -> oracle::Result<()> {
     let db_name = std::env::var("DBNAME").expect("database name");
     let db_user = std::env::var("DBUSER").expect("user name");
     let db_pass = std::env::var("DBPASS").expect("password");
-    let user_id = std::env::var("USERID").expect("library user ID");
 
     let oracle = oracle::env()?;
     let session = oracle.connect(&db_name, &db_user, &db_pass)?;
 
-    session.get_loaned_books(user_id, |row| {
+    db.loan_books(&["War and Peace", "Gone With the Wind"], "Sheldon Cooper")?;
+
+    db.get_loaned_books("Sheldon Cooper", |row| {
         let book_title : &str = row.get("BOOK_TITLE")?;
         println!("{}", book_title);
         Ok(())
@@ -59,6 +68,10 @@ fn main() -> oracle::Result<()> {
 # Documentation
 
 The included [documentation][3] describes the supported SQL file format and provides additional details on the generated code.
+
+# 💥 Breaking Changes in 0.2
+
+* [include-sql][1] changed optional statement terminator from `;` to `/`. SQL files that used `;` terminator would need to change it to `/` or remove it completely.
 
 [1]: https://crates.io/crates/include-sql
 [2]: https://crates.io/crates/sibyl

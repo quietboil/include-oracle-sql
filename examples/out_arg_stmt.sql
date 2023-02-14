@@ -10,4 +10,4 @@ VALUES
      ( hr.departments_seq.NextVal, :DEPARTMENT_NAME
      , (SELECT location_id FROM hr.locations WHERE city = :CITY)
      )
-RETURN department_id INTO :DEPARTMENT_ID;
+RETURN department_id INTO :DEPARTMENT_ID

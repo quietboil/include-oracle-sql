@@ -11,4 +11,4 @@ SELECT c.country_name, Median(e.salary)
   JOIN hr.countries c   ON c.country_id = l.country_id
  WHERE e.hire_date BETWEEN :FROM_DATE AND :THRU_DATE
    AND c.country_id IN (:COUNTRY_IDS)
- GROUP BY c.country_name;
+ GROUP BY c.country_name

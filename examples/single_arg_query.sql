@@ -9,4 +9,4 @@ SELECT c.country_name, Median(e.salary)
   JOIN hr.countries c   ON c.country_id = l.country_id
   JOIN hr.regions r     ON r.region_id = c.region_id
  WHERE r.region_name = :REGION_NAME
- GROUP BY c.country_name;
+ GROUP BY c.country_name

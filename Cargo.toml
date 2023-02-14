@@ -11,7 +11,7 @@ repository = "https://github.com/quietboil/include-oracle-sql"
 homepage = "https://quietboil.github.io/include-oracle-sql" 
 
 [dependencies]
-include-sql = "0.2"
+include-sql = "0.3"
 include-oracle-sql-args = "0.1"
 
 [dev-dependencies]
