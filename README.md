@@ -39,18 +39,17 @@ UPDATE library
 
 And then use it in Rust as:
 
-```rust , ignore
+```rust
 use include_oracle_sql::{include_sql, impl_sql};
-use sibyl as oracle;
 
 include_sql!("sql/library.sql");
 
-fn main() -> oracle::Result<()> {
+fn main() -> sibyl::Result<()> {
     let db_name = std::env::var("DBNAME").expect("database name");
     let db_user = std::env::var("DBUSER").expect("user name");
     let db_pass = std::env::var("DBPASS").expect("password");
 
-    let oracle = oracle::env()?;
+    let oracle = sibyl::env()?;
     let session = oracle.connect(&db_name, &db_user, &db_pass)?;
 
     db.loan_books(&["War and Peace", "Gone With the Wind"], "Sheldon Cooper")?;

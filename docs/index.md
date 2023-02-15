@@ -70,6 +70,43 @@ fn main() -> oracle::Result<()> {
 
 > **Note** that the path to the SQL file must be specified relative to the project root, i.e. relative to `CARGO_MANIFEST_DIR`. Because include-sql targets stable Rust this requirement will persist until [SourceFile][3] stabilizes.
 
+# Async
+
+By default **include-oracle-sql** build database access methods that target [Sibyl's][6] blocking mode. It also offers an alternative (to the default) feature **tokio**, which changes the code generation to target Sibyl's nonblocking mode with Tokio runtime. For example, the blocking mode example (above) would look like this in async mode (with tokio instead of the default feature):
+
+```rust
+use include_oracle_sql::{include_sql, impl_sql};
+
+include_sql!("sql/library.sql");
+
+#[tokio::main]
+async fn main() -> sibyl::Result<()> {
+    let db_name = std::env::var("DBNAME").expect("database name");
+    let db_user = std::env::var("DBUSER").expect("user name");
+    let db_pass = std::env::var("DBPASS").expect("password");
+
+    let oracle = sibyl::env()?;
+    let session = oracle.connect(&db_name, &db_user, &db_pass).await?;
+
+    db.loan_books(&["War and Peace", "Gone With the Wind"], "Sheldon Cooper").await?;
+
+    db.get_loaned_books("Sheldon Cooper", |row| {
+        let book_title : &str = row.get("BOOK_TITLE")?;
+        println!("{}", book_title);
+        Ok(())
+    }).await?;
+
+    Ok(())
+}
+```
+
+> **Note** that to use `tokio` feature the default features must be disabled, i.e. `include-oracle-sql` dependency would be declared as:
+
+```toml
+[dependencies]
+include-oracle-sql = { version = "0.2", features = ["tokio"], default-features = false }
+````
+
 # Anatomy of the Included SQL File
 
 Please see the **Anatomy of the Included SQL File** in [include-sql][4] documentation for the description of the format that include-sql can parse.
@@ -200,3 +237,4 @@ where F: FnMut(sibyl::Row) -> sibyl::Result<()>;
 [3]: https://doc.rust-lang.org/proc_macro/struct.SourceFile.html
 [4]: https://quietboil.github.io/include-sql
 [5]: https://github.com/quietboil/include-oracle-sql/blob/master/examples/prepare_query.rs
+[6]: https://quietboil.github.io/sibyl/using.html#using-sibyl-in-a-project
