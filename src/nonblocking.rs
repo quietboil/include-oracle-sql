@@ -134,7 +134,7 @@ macro_rules! impl_method {
         {
             ::std::boxed::Box::pin(async move {
                 let stmt = self.prepare( $crate::sql_literal!( $($text)+ ) ).await?;
-                let rows = stmt.query( ::include_oracle_sql_args::map!( $($arg)+ => $($text)+ ) ).await?;
+                let rows = stmt.query( $crate::util::map!( $($arg)+ => $($text)+ ) ).await?;
                 while let Some(row) = rows.next().await? {
                     row_cb(row)?;
                 }
@@ -154,7 +154,7 @@ macro_rules! impl_method {
                 let mut i = 0;
                 $crate::dynamic_sql!(stmt i $($text)+);
                 let stmt = self.prepare(&stmt).await?;
-                let rows = stmt.query( ::include_oracle_sql_args::map!( $($arg)+ => $($text)+ ) ).await?;
+                let rows = stmt.query( $crate::util::map!( $($arg)+ => $($text)+ ) ).await?;
                 while let Some(row) = rows.next().await? {
                     row_cb(row)?;
                 }
@@ -181,7 +181,7 @@ macro_rules! impl_method {
         {
             ::std::boxed::Box::pin(async move {
                 let stmt = self.prepare( $crate::sql_literal!( $($text)+ ) ).await?;
-                stmt.execute( ::include_oracle_sql_args::map!( $($arg)+ => $($text)+ ) ).await
+                stmt.execute( $crate::util::map!( $($arg)+ => $($text)+ ) ).await
             })
         }
     };
@@ -195,7 +195,7 @@ macro_rules! impl_method {
                 let mut i = 0;
                 $crate::dynamic_sql!(stmt i $($text)+);
                 let stmt = self.prepare(&stmt).await?;
-                let args = ::include_oracle_sql_args::map!( $($arg)+ => $($text)+ );
+                let args = $crate::util::map!( $($arg)+ => $($text)+ );
                 stmt.execute( args ).await
             })
         }

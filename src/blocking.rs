@@ -91,7 +91,7 @@ macro_rules! impl_method {
         where F: FnMut(::sibyl::Row) -> ::sibyl::Result<()>
         {
             let stmt = self.prepare( $crate::sql_literal!( $($text)+ ) )?;
-            let rows = stmt.query( ::include_oracle_sql_args::map!( $($arg)+ => $($text)+ ) )?;
+            let rows = stmt.query( $crate::util::map!( $($arg)+ => $($text)+ ) )?;
             while let Some(row) = rows.next()? {
                 row_cb(row)?;
             }
@@ -106,7 +106,7 @@ macro_rules! impl_method {
             let mut i = 0;
             $crate::dynamic_sql!(stmt i $($text)+);
             let stmt = self.prepare(&stmt)?;
-            let rows = stmt.query( ::include_oracle_sql_args::map!( $($arg)+ => $($text)+ ) )?;
+            let rows = stmt.query( $crate::util::map!( $($arg)+ => $($text)+ ) )?;
             while let Some(row) = rows.next()? {
                 row_cb(row)?;
             }
@@ -123,7 +123,7 @@ macro_rules! impl_method {
     ( ! $name:ident () ($($fn_params:tt)+) () => ($(: $arg:ident)+) $($text:tt)+) => {
         fn $name(&self $($fn_params)+) -> ::sibyl::Result<usize> {
             let stmt = self.prepare( $crate::sql_literal!( $($text)+ ) )?;
-            stmt.execute( ::include_oracle_sql_args::map!( $($arg)+ => $($text)+ ) )
+            stmt.execute( $crate::util::map!( $($arg)+ => $($text)+ ) )
         }
     };
     ( ! $name:ident ($($gen_type:ident)*) ($($fn_params:tt)+) () => ($($pv:tt $arg:ident)+) $($text:tt)+) => {
@@ -132,7 +132,7 @@ macro_rules! impl_method {
             let mut i = 0;
             $crate::dynamic_sql!(stmt i $($text)+);
             let stmt = self.prepare(&stmt)?;
-            stmt.execute( ::include_oracle_sql_args::map!( $($arg)+ => $($text)+ ) )
+            stmt.execute( $crate::util::map!( $($arg)+ => $($text)+ ) )
         }
     };
 

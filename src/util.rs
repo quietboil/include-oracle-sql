@@ -1,3 +1,5 @@
+pub use ::include_oracle_sql_args::map;
+
 #[macro_export]
 #[doc(hidden)]
 macro_rules! sql_literal {
